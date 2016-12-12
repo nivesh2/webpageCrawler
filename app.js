@@ -1,12 +1,11 @@
 'use strict';
 
 const url =  require('url');
-const json2csv = require('json2csv');
 const debug = require('debug')('app');
 
 const global = require('./global');
 const obj = require('./crawl_url');
-const copyLinks = require('./helper/helperfunctions').copyLinks;
+const helper = require('./helper/helperfunctions');
 
 
 let _arr=global.arr;
@@ -16,7 +15,7 @@ let _url = global.url;
 function getLinks(cb){
     
     if(_arr.length === 0){
-        var options = {
+        const options = {
             url:_url,
             depth_count:0,
             hostname:url.parse(_url).hostname,
@@ -32,14 +31,17 @@ function getLinks(cb){
                 depth: 0,
                 statusCode: statusCode  
             });
-
-            // if url is not functioning
-            if(err) {
-                return cb();
-            }
             
+            // if url is not functioning
+            if(err) {                
+                return cb(err);
+            }
+            //if no links are found on the home page
+            if(links === null){
+                return cb(null,true);
+            }
             // inserting the crawled links to the global array list
-            copyLinks(_arr,links);
+            helper.copyLinks(_arr,links);
 
             // running 5 instances concurrently of the crawlFromList function.
             for(var i=0;i<global.instances;i++){
@@ -54,36 +56,27 @@ function getLinks(cb){
 function main(){
 
     console.log('Webpage to be crawled:',global.url);
-    console.log('depth of crawl:',global.depth);
+    console.log('depth of crawl:',global.getDepth());
     console.log('concurrent crawler instances:',global.instances);
     console.log('****** Started ********');
         
     var count=0;    
-    getLinks(()=>{        
-        count+=1;
-        if(count === 5){
-            
-            debug('Total links: ',_arr.length);            
+    getLinks((err,nolinks)=>{
 
-            //creating csv using json2csv
-            var csv = json2csv({
-                data:_arr,
-                fields:['link','title','depth','statusCode']
-            });
-            
-            require('fs').writeFile(global.filepath,csv,(err)=>{
-                if(err){
-                    debug('Error while saving file');
-                    console.log(err);                    
-                }else{
-                    debug('CSV File Created');
-                    console.log('Process END')
-                }
-                
-            });            
-        }        
+        if(err){
+            console.log('Error on request to URL',err);
+            process.exit(1);
+        }else{
+            count+=1;
+            debug('Instances exited: ',count);
+            if(count === 5 || nolinks === true){                
+                // saves to csv only when all the 5 crawl process instances are over or
+                // there is no link to crawl at the home page. 
+                debug('Total links: ',_arr.length);
+                helper.save2csv(_arr,global.filepath);
+            }
+        }
     });    
 }
 
-//main called
-main();
+module.exports = exports = main;

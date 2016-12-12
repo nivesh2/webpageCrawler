@@ -14,6 +14,7 @@ Entry point is `app.js` and `global.js` is more like a configuraitons file for t
 
 ### SetUp Steps
  - clone the repo
+ - run `npm install`
  - change `global.js` as per your requirement.
  - run below commands
 

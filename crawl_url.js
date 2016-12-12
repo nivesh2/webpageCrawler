@@ -11,7 +11,7 @@ const copyLinks = require('./helper/helperfunctions').copyLinks;
 const global = require('./global');
 
 let _index=0;
-const _depth =global.depth;
+
 let _arr=global.arr;
 
 //exports
@@ -25,16 +25,24 @@ function crawlUrl(options,callback){
     
     request(options.url,(err,response,body)=>{
         if(err) {
-            debug('Error: ',err);
-            callback(err,null,500);            
+            debug('Error on request to URL: ',err);
+            if(response == null){
+                // console.log('Error on request to URL',err);
+                return callback(err,null,null);
+            }                
+            else{
+                return callback(err,null,response.statusCode);
+            } 
+                        
         }else {
             /*             
              * crawl links only to specified depth and domain
              * for rest only check whether the link is broken or not 
              */
-            var alinks = null;
+            let alinks = null;
+            
             if(response.statusCode === 200 && body!=null){
-                if(options.depth_count<_depth && options.regex.test(options.hostname)){                
+                if(options.depth_count<global.getDepth() && options.regex.test(options.hostname)){                
                     let $ = cheerio.load(body);
                     options.depth_count+=1;
                     alinks = $('a').map((i,e)=>{
@@ -52,11 +60,11 @@ function crawlUrl(options,callback){
 }
 
 function crawlFromList(cb){
-    var temp = _arr[_index++];
+    let temp = _arr[_index++];
     
     //check if list is exhausted    
     if(temp != null){                
-        var options = {
+        const options = {
             url:temp.link,
             depth_count:temp.depth,
             hostname:url.parse(temp.link).hostname,

@@ -1,6 +1,7 @@
 #Webpage crawler Using Node.JS
 
-Entry point is `app.js` and `global.js` is more like a configuraitons file for the crawler.
+Entry point is `index.js` and `global.js` is more like a configuraitons file for the crawler.
+Depth to crawl the webpage will be prompted during program execution.
 
 ### constarints:
  - this will crawl only anchor tag links, not that of image href or `<from>` tag actions links
@@ -22,6 +23,6 @@ Entry point is `app.js` and `global.js` is more like a configuraitons file for t
  - to start: `npm start` 
  - for debugging:
     * Install Debug module globally: `npm install debug -g`
-    * `DEBUG=* node app.js`
+    * `DEBUG=* node index.js`
 
 > Note: Currently crawl depth is set to 2, you can change as per your requirement.

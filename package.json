@@ -2,9 +2,9 @@
   "name": "crawler",
   "version": "1.0.0",
   "description": "crawl and scrap all anchor tag links",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node index.js"
   },
   "author": "nivesh",
   "license": "MIT",

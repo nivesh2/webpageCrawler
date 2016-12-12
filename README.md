@@ -17,3 +17,5 @@ Entry point is `app.js` and `global.js` is more like a configuraitons file for t
  - for debugging:
     * Install Debug module globally: `npm install debug -g`
     * `DEBUG='main:*' node app.js`
+
+> Note: Currently crawl depth is set to 2, you can change as per your requirement.

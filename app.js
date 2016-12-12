@@ -72,8 +72,14 @@ function main(){
             });
             
             require('fs').writeFile(global.filepath,csv,(err)=>{
-                if(err) throw err;
-                debug('CSV File Created');
+                if(err){
+                    debug('Error while saving file');
+                    console.log(err);                    
+                }else{
+                    debug('CSV File Created');
+                    console.log('Process END')
+                }
+                
             });            
         }        
     });    

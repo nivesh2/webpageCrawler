@@ -9,6 +9,7 @@
   "author": "nivesh",
   "license": "MIT",
   "dependencies": {
+    "async": "2.1.4",
     "cheerio": "^0.22.0",
     "express": "^4.14.0",
     "json2csv": "3.7.3"

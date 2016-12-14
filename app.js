@@ -48,10 +48,9 @@ function getLinks(cb){
 
             // running 5 instances concurrently of the async crawlFromList function.
             const instances =[];
-            for(let i=0; i<global.instances;i++){
-                instances.push(function(callback){
-                    let j = i+1;
-                    debug('Crawl Instance '+ j +' Started')
+            for(let i=1; i<=global.instances;i++){
+                instances.push(function(callback){                    
+                    debug('Crawl Instance '+ i +' Started')
                     obj.crawlFromList(callback,j);
                 });
             }            

@@ -1,4 +1,4 @@
-#Webpage crawler Using Node.JS
+#Webpage crawler Using Node.JS and Async module
 
 Entry point is `index.js` and `global.js` is more like a configuraitons file for the crawler.
 Depth to crawl the webpage will be prompted during program execution.

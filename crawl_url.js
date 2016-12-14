@@ -4,6 +4,7 @@ const url = require('url');
 //used to parse the HTML body to scrap the contents
 const cheerio = require('cheerio');
 const debug = require('debug')('crawl');
+const debug2 = require('debug')('crawl:instance');
 
 //custom files
 const request = require('./helper/http_request');
@@ -59,7 +60,7 @@ function crawlUrl(options,callback){
     });    
 }
 
-function crawlFromList(cb){
+function crawlFromList(cb,j){
     let temp = _arr[_index++];
     
     //check if list is exhausted    
@@ -74,22 +75,22 @@ function crawlFromList(cb){
             //is link is like: //facebook.com/WorldPressPhoto or //medium.com/policy/9db0094a1e0f
             // which is not a proper url
             debug('Erro Link:',temp.link);
-            return crawlFromList(cb);
+            return crawlFromList(cb,j);
         }
         crawlUrl(options,function(err,alinks,statusCode){            
             temp.statusCode=statusCode;
-            debug(temp);       
+            debug('Instance: '+j+ ' | %o',temp);       
             if(err){
                 //already handled
             }else if(statusCode === 200 && alinks != null){
                 copyLinks(_arr,alinks);                        
             }
             //recursive call
-            return crawlFromList(cb);
+            return crawlFromList(cb,j);
         });
     }else{
-        debug('End Processing',_arr.length);
-        return cb();
+        debug2('Instance exited: '+j);
+        return cb(null,false);
     }        
 }
 

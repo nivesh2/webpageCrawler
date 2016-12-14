@@ -2,6 +2,7 @@
 
 const url =  require('url');
 const debug = require('debug')('app');
+const async = require('async');
 
 const global = require('./global');
 const obj = require('./crawl_url');
@@ -25,6 +26,11 @@ function getLinks(cb){
         //first hit to url
         obj.crawlUrl(options,(err,links,statusCode)=>{
             
+            // if url is not functioning
+            if(err) {                
+                return cb(err);
+            }
+
             _arr.push({
                 link: _url,
                 title: 'Home Page',
@@ -32,21 +38,29 @@ function getLinks(cb){
                 statusCode: statusCode  
             });
             
-            // if url is not functioning
-            if(err) {                
-                return cb(err);
-            }
             //if no links are found on the home page
             if(links === null){
-                return cb(null,true);
+                return cb(null);
             }
+            debug('Home Page Crawl Successful, with total links: ',links.length);
             // inserting the crawled links to the global array list
             helper.copyLinks(_arr,links);
 
-            // running 5 instances concurrently of the crawlFromList function.
-            for(var i=0;i<global.instances;i++){
-                obj.crawlFromList(cb);
-            }                
+            // running 5 instances concurrently of the async crawlFromList function.
+            const instances =[];
+            for(let i=0; i<global.instances;i++){
+                instances.push(function(callback){
+                    let j = i+1;
+                    debug('Crawl Instance '+ j +' Started')
+                    obj.crawlFromList(callback,j);
+                });
+            }            
+            async.parallel(instances,function(err,results){
+                if(err){
+                    return cb(err);        
+                }
+                return cb(null);
+            });              
         
         });
     }
@@ -59,22 +73,15 @@ function main(){
     console.log('depth of crawl:',global.getDepth());
     console.log('concurrent crawler instances:',global.instances);
     console.log('****** Started ********');
-        
-    var count=0;    
-    getLinks((err,nolinks)=>{
+           
+    getLinks((err)=>{
 
         if(err){
             console.log('Error on request to URL',err);
             process.exit(1);
         }else{
-            count+=1;
-            debug('Instances exited: ',count);
-            if(count === 5 || nolinks === true){                
-                // saves to csv only when all the 5 crawl process instances are over or
-                // there is no link to crawl at the home page. 
-                debug('Total links: ',_arr.length);
-                helper.save2csv(_arr,global.filepath);
-            }
+            debug('Total links: ',_arr.length);
+            helper.save2csv(_arr,global.filepath);
         }
     });    
 }
